@@ -1,7 +1,8 @@
 import time
+from typing import List
 
 
-def do_nothing_and_gather_times(identification: int):
+def do_nothing_and_gather_times(identification: int) -> List[float]:
     print(f'Indentification: {identification}')
     start = time.time()
     res = []

@@ -9,8 +9,8 @@ def download_site(url: str, session: requests.Session) -> None:
         pass
 
 
-def download_all_sites(x: int) -> Tuple[float, float]:
-    print(f'Identification: {x}')
+def download_all_sites(identification: int) -> Tuple[float, float]:
+    print(f'Identification: {identification}')
     sites = [
         "https://www.python.org",
         "http://olympus.realpython.org/dice",
