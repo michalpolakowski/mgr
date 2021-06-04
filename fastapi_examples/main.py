@@ -2,19 +2,26 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 import requests
+import uvicorn
 from fastapi import FastAPI
 import aiohttp
-from fastapi.logger import logger
 
+from session_util import SingletonSession
 
+PORT = 8080
 NUMBER_OF_REQUEST = 1000
-
-URL_TO_BE_REQUESTED = 'http://127.0.0.1:8000/'
-
-aio_logger = logger
+URL_TO_BE_REQUESTED = f'http://localhost:{PORT}/'
 
 
-app = FastAPI()
+def create_aiohttp_session():
+    SingletonSession.get_session()
+
+
+async def destroy_aiohttp_session():
+    await SingletonSession.destroy_session()
+
+
+app = FastAPI(docs_url='/docs', on_startup=[create_aiohttp_session], on_shutdown=[destroy_aiohttp_session])
 
 
 @app.get('/')
@@ -25,11 +32,9 @@ def home():
 @app.get('/fetch-sites-async')
 async def fetch_sites_asyncio():
     tasks = []
-    async with aiohttp.ClientSession() as session:
-        for i in range(NUMBER_OF_REQUEST):
-            task = asyncio.ensure_future(get_site(URL_TO_BE_REQUESTED, session))
-            tasks.append(task)
-        return await asyncio.gather(*tasks)
+    for i in range(NUMBER_OF_REQUEST):
+        tasks.append(SingletonSession.fetch_url(URL_TO_BE_REQUESTED))
+    return await asyncio.gather(*tasks)
 
 
 @app.get('/fetch-sites-threading')
@@ -61,3 +66,7 @@ async def get_site(url: str, session: aiohttp.ClientSession):
 
 def get_response_body(url):
     return requests.get(url).content
+
+
+if __name__ == '__main__':
+    uvicorn.run('main:app', host="0.0.0.0", port=PORT, reload=True)
