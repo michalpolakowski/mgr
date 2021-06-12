@@ -1,0 +1,126 @@
+\documentclass[12pt,a4paper,oneside,openany,parskip=full,parindent=full]{book}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{graphicx}
+\usepackage{times}
+\usepackage{indentfirst}
+\usepackage[left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{natbib}
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage{dirtree}
+\edef\restoreparindent{\parindent=\the\parindent\relax}
+\usepackage{parskip}
+\restoreparindent
+\usepackage{listings}
+\usepackage{enumerate}
+\usepackage{color}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+\frenchspacing
+\linespread{1.5}
+\addto\captionspolish{%
+\renewcommand*\listtablename{Spis tabel}
+\renewcommand*\tablename{Tabela}
+}
+
+\frenchspacing
+
+\begin{document}
+
+\begin{center}
+
+\vspace{1cm}
+
+Studium licencjackie
+\end{center}
+
+\vspace{1cm}
+
+\noindent Kierunek: Informatyka
+
+\noindent Specjalność: Bazy danych i technologie internetowe
+
+\vspace{1cm}
+
+{
+\leftskip=10cm\noindent
+Michał Polakowski\newline
+Nr albumu: 203446\newline
+}
+
+\vspace{2cm}
+
+\title{Praktyczne zastosowanie współbiezności do tworzenia  aplikacji internetowych}
+\makeatletter
+
+\begin{center}
+\LARGE\bf
+\@title
+\end{center}
+
+\vspace{2cm}
+
+{
+\leftskip=8cm\noindent
+Praca magisterska\newline 
+napisana w~Instytucie Matematyki, Fizyki i Informatyki\newline
+pod kierunkiem naukowym\newline
+Profa Dra rer. nat. Christopha Schwarzwellera
+}
+
+\vfill
+
+\begin{center}
+Gdańsk, \the\year
+\end{center}
+\thispagestyle{empty}
+
+\clearpage
+\thispagestyle{empty}
+\clearpage
+
+\tableofcontents
+
+\clearpage
+\chapter*{Streszczenie}
+\input{rozdzialy/streszczenie.tex}
+\input{rozdzialy/wprowadzenie.tex}
+\input{rozdzialy/implementacja.tex}
+
+
+
+
+\clearpage
+\bibliography{main}
+\bibliographystyle{ieeetr}
+
+\clearpage
+
+
+\end{document}

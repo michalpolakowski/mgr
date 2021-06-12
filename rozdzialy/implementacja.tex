@@ -1,0 +1,125 @@
+\chapter{Implementacja}
+
+Po zapoznaniu się z ogólnym zasadami rządzacymi światem programowania współbieżnego i z samym językiem Python, przejść możemy do konkretnych implementacji mikroserwisów, które unaocznią nam jak opisane techniki mogą być używane w praktyce. Biorąc pod uwagę, że w języku Python najczęściej występującym przypadkiem wykorzystania zrównoleglenia są operacje wykonywania zapytań do zewnętrznych serwisów, zaczniemy od implementacji właśnie tego typu zastosowania.
+
+
+\section{FastAPI}
+Framework webowy FastAPI to projekt, który istnieje dość krótko nawet jak na realia współczesnych technologii webowych, których scena zmienia się niemal z dnia na dzień. Potrzeba na jego stworzenie powstała u jego autora nie dalej niż w roku 2018.  Tworząc komleksowe API i dowodząc kilkoma zespołami programistów Sebastian Ramirez - bo tak nazywa się twórca tego frameworka - doszedł do wniosku, że biorąc co najlepsze z wielu narzędzi, którymi się posługiwał może stworzyć technologię pozwalającą usprawnić pracę. Tak właśnie czerpiąc inspiracje z technologii takich jak Django, Django Rest Framework, Flask, Requests, Marshmallow, a nawet JavaScriptowych NestJS i Angular.
+
+\subsection{Przykład użycia technologii}
+Pracę z frameworkiem zaczynamy od instalacji samego frameworka oraz servera ASGI:
+\begin{lstlisting}
+pip install fastapi, uvicorn
+\end{lstlisting}
+Po tym podstawowym kroku możemy przejśc do konkretnej implementacji naszego mikroserwisu. Tworzymy plik o nazwie main.py i w jego treści umieszczamy:
+
+\begin{lstlisting}
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get('/')
+def home():
+    return {'welcome_text': 'Welcome to FastAPI showcase project'}
+\end{lstlisting}
+
+Stworzenie aplikacji ogranicza się do utworzenia instacji zaimportowanej klasy FastAPI. Następnie metody utworzonej instacji mogą być używane jako dekoratory dla konkretnych funkcji przettwarzających żądanie i zwracających konkretny response. Tak przygotowaną podstawową aplikację możemy od razu włączyć lub nawet wdrożyć. Aby włączyć aplikację możemy z terminala użyć zainstalowanego serwera ASGI poleceniem:
+\begin{lstlisting}
+uvicorn main:app --reload --port 8000
+\end{lstlisting}
+, w którym to poleceniu 'main' odpowiada nazwie pliku (modułu), w którym zainicjalizowana jest nasza aplikacja, ':app' określa nazwę zmiennej w której znajduje się instancja naszej aplikacji. Pozostałe parametry to '--reload', który w wypadku włączenia aplikacji lokalnie w czasie rozwijania będzie przeładowywał aplikacje po każdej zmianie kodu wewnątrz modułu, zaś '--port' pozwala nam określić na jakim porcie aplikacja będzie dostępna.
+
+Przy nieco bardziej zaawansowanej strukturze projektu niezbędne będzie użycie routerów, które pozwolą nam podzielić aplikacje na kilka części. Aby użycie kilku routerów było możliwe musimy utworzyć wewnątrz struktury projektu nowy pythonowy moduł i dowolnie go nazwać. W naszej aplikacji będzie to moduł 'routers'. Wewnątrz modułu tworzymy plik o nazwie "example\_router.py" i wewnątrz pliku umieszczamy następujący kod
+
+\begin{lstlisting}
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.get('/router')
+async def router_example():
+    return {'welcome_text': 'Welcome to FastAPI router'}
+\end{lstlisting}
+zaś w pliku main.py dodajemy linijki:
+\begin{lstlisting}
+from routers.api_requests import router as example_router
+\end{lstlisting}
+oraz po stworzeniu instancji FastAPI - app:
+\begin{lstlisting}
+app.include_router(example_router)
+\end{lstlisting}
+Po dodaniu tych elementów możemy otworzyć przeglądarkę internetową na adresie 'http://127.0.0.1:8000' lub 'http:127.0.0.1:8000/router', które to adresy powinny wyświetlić nam odpowiednio napisy \{'welcome\_text': 'Welcome to FastAPI showcase project'\} oraz \{'welcome\_text': 'Welcome to FastAPI router'\}.
+
+\subsection{Operacje IO}
+Pierwszym przykładem zastosowania zrównoleglania w moim projekcie będzie wykonywania zapytań na inny endpoint. 
+\subsubsection{Sekwencyjnie}
+Dla uproszczenia nasze api będzie wykonywało request do siebie samego, na endpoint, który po prostu zwraca napis, co nie powinno zbyt mocno dodatkowo obciążać aplikacji i wpływać zbyt mocno na finalne wyniki. Aby mieć punkt odniesienia rozpoczniemy od implementacji tego typu endpointa, który będzie wykonywał zamierzoną pracę w trybie sekwencyjnym:
+\begin{lstlisting}
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.get('/fetch-sites-sync')
+def fetch_sites_sync():
+    responses = []
+    for i in range(NUMBER_OF_REQUEST):
+        responses.append(requests.get(URL_TO_BE_REQUESTED).content)
+    return responses
+\end{lstlisting}
+Zmienne oznaczone wielkimi literami możemy zdefiniować dowolnie, jednak NUMBER\_OF\_REQUEST powinno być liczbą, zaś URL\_TO\_BE\_REQUESTED powinien być napisem zawierającym prawidłowy, istniejący adres internetowy.
+
+Do wykonywania zpaytań używamy biblioteki requests. W pętli o określonej ilości przebiegów nasz kod wykonuje zapytanie i czeka na jego wynik, po czym przechodzi do kolejnego zapytania. To podejście klasyczne, które sprawdza się gdy zapytań nie jest zbyt wiele i możemy sobie pozwolić na bierne oczekiwanie.
+
+Jeśli założymy, że jako URL\_TO\_BE\_REQUESTED podamy adres endpointa z pierwszego przykładu w tym rozdziale, a NUMBER\_OF\_REQUEST zdefinujemy jako liczbę 5, to odpwiedź z właśnie utworzonego kodu powinna być napisem \{'welcome\_text': 'Welcome to FastAPI showcase project'\} powtórzonym 5 razy.
+
+\subsubsection{threading}
+Aby skorzystać z pythonowego threadingu tworzymy następujący kod:
+\begin{lstlisting}
+from fastapi import APIRouter
+from concurrent.futures import ThreadPoolExecutor,
+
+router = APIRouter()
+
+@router.get('/fetch-sites-threading')
+def fetch_sites_threading():
+    with ThreadPoolExecutor() as ex:
+        res = ex.map(get_response_body, (URL_TO_BE_REQUESTED for _ in range(NUMBER_OF_REQUEST)))
+    return res
+\end{lstlisting}
+
+W tym przykładzie używamy klasy ThreadPoolExecutor pochodzącej z modułu concurrent.futures. Moduł ten udostępnia użytkownikom języka wysokopoziomowe interejsy umożliwiające prostsze wykonywanie asynchronicznych procesów. Pod spodem używane są mechanizmy znane z modułów threading oraz processing. Stosowana w tym przykładzie klasa pozwala na korzystanie ze zbioru wątków, by wykonywać z ich pomocą zadania asynchroniczne.
+
+W przykładach współbieżnych wykorzystujących threading oraz multiprocessing (pomijając asyncio) będziemy wykorzystywali funkcję pomocniczą o nazwie get\_response\_body zdefiniowaną następująco:
+\begin{lstlisting}
+import requests
+
+def get_response_body(url):
+    return requests.get(url).content
+\end{lstlisting}
+
+W przeciwieństwie do przykładu sekwencyjnego nie używamy tutaj jawnie pętli for. Zamiast tego używamy klasy ThreadPoolExecutor i do metody 'map' instacji executora powstałej w wyniku użycia klasy jako context managera przekazujemy jako pierwszy argument funkcję, która ma być wykonana asynchronicznie, zaś jako drugi argument obiekt dający się iterować. Elementy drugiego argumentu będą użyte jako argumenty funkcji, podanej jako pierwszy argument.
+
+Przy tworzeniu instancji klasy ThreadPoolExecutor możemy podać jako pierwszy argument liczbę, która będzie reprezentowała maksymalną liczbę wątków w zbiorze używanym przez stworzony executor. Jeśli nie podamy tego argumentu domyślnie podana będzie liczba wyliczana według wzoru: 
+\[ cpu * 5 \]
+, gdzie przez cpu oznaczamy liczbę procesorów (lub rdzeni procesora) wykrywalnych w systemie.
+
+Wynik zapytania na ten endpoint z analogicznymi jak w pierwszym przykładzie wartościami zmiennych NUMBER\_OF\_REQUEST oraz URL\_TO\_BE\_REQUESTED powinna być identyczna jak w przykładzie sekwencyjnym, zmianie powinien ulec jedynie czas wykonania, który powinien być krótszy i wynosić czas wykonania nadłuższego zapytania. Założenie to będziemy sprawdzać w kolejnym rozdziale, podobnie jak inne poczynione w tym rozdziale przewidywania dotyczące wyników i czasów wykonań kodu tworzonych endpointów.
+
+\subsubsection{multiprocessing}
+W celu posłużenia się mechanizmem tworzenia oddzielnych procesów w FastAPI posłużymy się następującym kodem:
+\begin{lstlisting}
+from fastapi import APIRouter
+from concurrent.futures import ThreadPoolExecutor,
+
+router = APIRouter()
+
+@router.get('/fetch-sites-threading')
+def fetch_sites_threading():
+    with ProcessPoolExecutor() as ex:
+        res = ex.map(get_response_body, (URL_TO_BE_REQUESTED for _ in range(NUMBER_OF_REQUEST)))
+    return res
+\end{lstlisting}
+
+Jedyna jawna różnica względem endpointa korzystającego z threadingu to użyta klasa executora - zmiana z ThreadPoolExecutora na ProcessPoolExecutora sprawia, że zamiast używania wątków kod będzie korzystał z zupełnie oddzielnych procesów. Mówiąc inaczej, niejawnie zamiast modułu threading będzie używany moduł multiprocessing. Tutaj opcjonalny argument przy inicjalizacji klasy to liczba reprezentująca maksymalną liczbę robotników wykonujących pracę równolegle. W tym przypadku domyślna wartość jeśli programista nie poda swojej to dokładnie ilość procesorów lub rdzeni procesora.
+
+Ponownie wynik zapytania z analogicznymi wartościami zmiennych powinien być identyczny, zaś czas wykonania podobny do przypadku z użyciem wątków, prawdopodobnie z naddatkiem związanym z koniecznością włączenia oddzielnego procesu dla każdego wykonania.

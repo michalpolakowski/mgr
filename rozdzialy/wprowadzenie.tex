@@ -1,0 +1,17 @@
+\chapter{Wprowadzenie}
+
+Wybór tematu mojej pracy jest ściśle związany z aktualnie panującymi trendami we współczesnym świecie programowania. Technologie asynchroniczne są w języku Python obecne w coraz większym stopniu i cieszą się rosnącą popularnością wśród programistów tego języka. Powodów takiego stanu rzeczy jest co najmniej kilka. 
+
+Bogactwo frameworków webowych z wbudowaną obsługą asynchroniczności, coraz więcej współbieżnych modułów tworzonych przez społeczność do obsługi dotychczasowych sekwencyjnych funkcjonalności Pythona i wreszcie - coraz obszerniejsze wsparcie tego typu podejścia we wbudowanych bibliotekach języka oraz  w nim samym. Wymienione czynniki sprawiają, że uważam zajęcie się tą tematyką za pożyteczne.
+
+Na początku pracy chciałbym zająć się szerzej tematem równoległości oraz współbieżności, gdyż pomimo że ogólnie pojęcia te bywają używane wymiennie, w mojej pracy będę je rozróżniał. Stąd też w pierwszych rozdziałach przedstawiam pokrótce ogólne definicje tych dwóch terminów i staram się rzetelnie nakreślić ich różnice.
+
+W dalszej części pracy przedstawiam język Python. W mojej pracy skupiam się na jego konkretnej implementacji, którą jest CPython Znajomość krótkiej historii tej technologii będzie niezbędna, by zrozumieć pewnie mechanizmy, które na dość długoa, a nawet po dziś dzień utrudniają pracę z Pythonem jako językiem asynchronicznym. Dopiero jego najnowsze wersje wprowadziły do samej składni języka elementy ułatwiające zrozumienie działania mechanizmów asynchronicznych.
+
+Kolejny rozdział poświęcam właśnie wspomnianym na końcu ostatniego akapitu mechanizmom. Jest ich co najmniej kilka i każdy ma swoją specyfikę pracy, wady oraz zalety. Mechanizmy te to mianowicie wbudowane moduły threading, multiprocessing oraz asyncio i powiązane z tym ostatnim słowa kluczowe async i await.
+
+W rozdziale przedostatnim chciałbym zaprezentować sposoby użycia mechanizmów asynchronicznych w kontekście aplikacji webowej. Pierwszym wyborem ze względu na popularność tego frameworka względem jego dość krótkiego czasu istnienia jest FastAPI - uważany za jeden z najszybszych pythonowych frameworków webowych, do tego natywnie obsługujący asynchroniczność. Dla porównania zaprezentuję jak podobne zastosowanie byłoby rozwiązane w bardizej tradycyjnym frameworku, którym to w ninejszej pracy będzie Django.
+
+Na koniec przerpowadzone eksperymenty opiszę i przestawię w postaci wyników czasowych cyklu zapytanie-odpowiedź.
+
+\textbf{Słowa kluczowe:} współbieżność, równoległość, aplikacje internetowe
