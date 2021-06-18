@@ -1,0 +1,5 @@
+aiohttp==3.7.4.post0
+Django==3.2.4
+gunicorn==20.1.0
+requests==2.25.1
+uvicorn==0.14.0
