@@ -1,6 +1,7 @@
 from typing import Optional
 
 import aiohttp
+import requests
 
 
 class SingletonSession:
@@ -24,3 +25,29 @@ class SingletonSession:
         if cls.session:
             await cls.session.close()
             cls.session = None
+
+
+def create_aiohttp_session():
+    SingletonSession.get_session()
+
+
+async def destroy_aiohttp_session():
+    await SingletonSession.destroy_session()
+
+
+def get_response_body(url):
+    return requests.get(url).content
+
+
+def cpu_heavy(_: int) -> int:
+    count = 0
+    for i in range(50000):
+        count += i
+    return count
+
+
+async def acpu_heavy(_: int) -> int:
+    count = 0
+    for i in range(50000):
+        count += i
+    return count
