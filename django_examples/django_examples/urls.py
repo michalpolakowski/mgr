@@ -17,8 +17,10 @@ from django.contrib import admin
 from django.urls import path, include
 
 from examples.urls import urlpatterns as examples_urls
+from math_examples.urls import urlpatterns as math_examples
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(examples_urls))
+    path('', include(examples_urls)),
+    path('', include(math_examples))
 ]
