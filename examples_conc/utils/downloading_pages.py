@@ -13,7 +13,7 @@ def download_all_sites(identification: int) -> Tuple[float, float]:
     print(f'Identification: {identification}')
     sites = [
         "https://www.python.org",
-        "http://olympus.realpython.org/dice",
+        "https://www.google.com/",
     ] * 80
     start = time.time()
     with requests.Session() as session:
