@@ -4,14 +4,14 @@ Po zapoznaniu się z ogólnym zasadami rządzacymi światem programowania wspó�
 
 
 \section{FastAPI}
-Framework webowy FastAPI to projekt, który istnieje dość krótko nawet jak na realia współczesnych technologii webowych, których scena zmienia się niemal z dnia na dzień. Potrzeba na jego stworzenie powstała u jego autora nie dalej niż w roku 2018.  Tworząc komleksowe API i dowodząc kilkoma zespołami programistów Sebastian Ramirez - bo tak nazywa się twórca tego frameworka - doszedł do wniosku, że biorąc co najlepsze z wielu narzędzi, którymi się posługiwał może stworzyć technologię pozwalającą usprawnić pracę. Tak właśnie czerpiąc inspiracje z technologii takich jak Django, Django Rest Framework, Flask, Requests, Marshmallow, a nawet JavaScriptowych NestJS i Angular.
+Framework webowy \emph{FastAPI}\footnote{\url{https://fastapi.tiangolo.com/}} to projekt, który istnieje dość krótko nawet jak na realia współczesnych technologii webowych, których scena zmienia się niemal z dnia na dzień. Potrzeba na jego stworzenie powstała u jego autora nie dalej niż w roku 2018. Tworząc komleksowe API i dowodząc kilkoma zespołami programistów Sebastian Ramirez - bo tak nazywa się twórca tego frameworka - doszedł do wniosku, że biorąc co najlepsze z wielu narzędzi, którymi się posługiwał może stworzyć technologię pozwalającą usprawnić pracę. Tak właśnie czerpiąc inspiracje z technologii takich jak Django, Django Rest Framework, Flask, Requests, Marshmallow, a nawet JavaScriptowych NestJS i Angular.
 
 \subsection{Przykład użycia technologii}
-Pracę z frameworkiem zaczynamy od instalacji samego frameworka oraz servera ASGI:
-\begin{lstlisting}
-pip install fastapi, uvicorn
+Pracę z frameworkiem zaczynamy od instalacji samego frameworka oraz servera ASGI\footnote{Asynchronous Server Gateway Interface}:
+\begin{lstlisting}[escapechar=ß]
+pip install fastapi, uvicornß\footnote{\url{https://www.uvicorn.org/}}ß
 \end{lstlisting}
-Po tym podstawowym kroku możemy przejśc do konkretnej implementacji naszego mikroserwisu. Tworzymy plik o nazwie main.py i w jego treści umieszczamy:
+Po tym podstawowym kroku możemy przejść do konkretnej implementacji naszego mikroserwisu. Tworzymy plik o nazwie main.py i w jego treści umieszczamy:
 
 \begin{lstlisting}
 from fastapi import FastAPI
@@ -23,13 +23,13 @@ def home():
     return {'welcome_text': 'Welcome to FastAPI showcase project'}
 \end{lstlisting}
 
-Stworzenie aplikacji ogranicza się do utworzenia instacji zaimportowanej klasy FastAPI. Następnie metody utworzonej instacji mogą być używane jako dekoratory dla konkretnych funkcji przettwarzających żądanie i zwracających konkretny response. Tak przygotowaną podstawową aplikację możemy od razu włączyć lub nawet wdrożyć. Aby włączyć aplikację możemy z terminala użyć zainstalowanego serwera ASGI poleceniem:
+Stworzenie aplikacji ogranicza się do utworzenia instacji zaimportowanej klasy FastAPI. Następnie metody utworzonej instacji mogą być używane jako dekoratory dla konkretnych funkcji przetwarzających żądanie i zwracających konkretny response. Tak przygotowaną podstawową aplikację możemy od razu włączyć lub nawet wdrożyć. Aby włączyć aplikację możemy z terminala użyć zainstalowanego serwera ASGI poleceniem:
 \begin{lstlisting}
 uvicorn main:app --reload --port 8000
 \end{lstlisting}
 , w którym to poleceniu 'main' odpowiada nazwie pliku (modułu), w którym zainicjalizowana jest nasza aplikacja, ':app' określa nazwę zmiennej w której znajduje się instancja naszej aplikacji. Pozostałe parametry to '--reload', który w wypadku włączenia aplikacji lokalnie w czasie rozwijania będzie przeładowywał aplikacje po każdej zmianie kodu wewnątrz modułu, zaś '--port' pozwala nam określić na jakim porcie aplikacja będzie dostępna.
 
-Przy nieco bardziej zaawansowanej strukturze projektu niezbędne będzie użycie routerów, które pozwolą nam podzielić aplikacje na kilka części. Aby użycie kilku routerów było możliwe musimy utworzyć wewnątrz struktury projektu nowy pythonowy moduł i dowolnie go nazwać. W naszej aplikacji będzie to moduł 'routers'. Wewnątrz modułu tworzymy plik o nazwie "example\_router.py" i wewnątrz pliku umieszczamy następujący kod
+Przy nieco bardziej zaawansowanej strukturze projektu niezbędne będzie użycie routerów, które pozwolą nam podzielić aplikacje na kilka części. Aby użycie kilku routerów było możliwe musimy utworzyć wewnątrz struktury projektu nowy pythonowy moduł i dowolnie go nazwać. W naszej aplikacji moduł ten będzie nazwany 'routers'. Wewnątrz modułu tworzymy plik o nazwie ,,example\_router.py'' i wewnątrz pliku umieszczamy następujący kod
 
 \begin{lstlisting}
 from fastapi import APIRouter
@@ -48,12 +48,12 @@ oraz po stworzeniu instancji FastAPI - app:
 \begin{lstlisting}
 app.include_router(example_router)
 \end{lstlisting}
-Po dodaniu tych elementów możemy otworzyć przeglądarkę internetową na adresie 'http://127.0.0.1:8000' lub 'http:127.0.0.1:8000/router', które to adresy powinny wyświetlić nam odpowiednio napisy \{'welcome\_text': 'Welcome to FastAPI showcase project'\} oraz \{'welcome\_text': 'Welcome to FastAPI router'\}.
+Po dodaniu tych elementów możemy otworzyć przeglądarkę internetową na adresie ,,http://127.0.0.1:8000'' lub ,,http:127.0.0.1:8000/router'', które to adresy powinny wyświetlić nam odpowiednio napisy \{'welcome\_text': 'Welcome to FastAPI showcase project'\} oraz \{'welcome\_text': 'Welcome to FastAPI router'\}.
 
-\subsection{Operacje IO}
-Pierwszym przykładem zastosowania zrównoleglania w moim projekcie będzie wykonywania zapytań na inny endpoint. 
+\subsection{Żądania do innych endpointów}
+Pierwszym przykładem zastosowania zrównoleglania w moim projekcie będzie wykonywania zapytań na inny endpoint z serwera do którego zostało wysłane żądanie użytkownika. 
 \subsubsection{Sekwencyjnie}
-Dla uproszczenia nasze api będzie wykonywało request do siebie samego, na endpoint, który po prostu zwraca napis, co nie powinno zbyt mocno dodatkowo obciążać aplikacji i wpływać zbyt mocno na finalne wyniki. Aby mieć punkt odniesienia rozpoczniemy od implementacji tego typu endpointa, który będzie wykonywał zamierzoną pracę w trybie sekwencyjnym:
+Dla uproszczenia nasze api będzie wykonywało request do siebie samego, na endpoint, który po prostu zwraca napis, co nie powinno zbyt mocno dodatkowo obciążać aplikacji i bardzo wpłynąć na finalne wyniki. Aby mieć punkt odniesienia rozpoczniemy od implementacji tego typu endpointa, który będzie wykonywał zamierzoną pracę w trybie sekwencyjnym:
 \begin{lstlisting}
 from fastapi import APIRouter
 
@@ -66,7 +66,7 @@ def fetch_sites_sync():
         responses.append(requests.get(URL_TO_BE_REQUESTED).content)
     return responses
 \end{lstlisting}
-Zmienne oznaczone wielkimi literami możemy zdefiniować dowolnie, jednak NUMBER\_OF\_REQUEST powinno być liczbą, zaś URL\_TO\_BE\_REQUESTED powinien być napisem zawierającym prawidłowy, istniejący adres internetowy.
+Zmienne oznaczone wielkimi literami możemy zdefiniować dowolnie, jednak NUMBER\_OF\_REQUEST powinno być liczbą, zaś URL\_TO\_BE\_REQUESTED powinien być napisem zawierającym prawidłowy, istniejący URL\footnote{Uniform Resource Locator, pot. adres internetowy}.
 
 Do wykonywania zpaytań używamy biblioteki requests. W pętli o określonej ilości przebiegów nasz kod wykonuje zapytanie i czeka na jego wynik, po czym przechodzi do kolejnego zapytania. To podejście klasyczne, które sprawdza się gdy zapytań nie jest zbyt wiele i możemy sobie pozwolić na bierne oczekiwanie.
 
@@ -87,7 +87,7 @@ def fetch_sites_threading():
     return res
 \end{lstlisting}
 
-W tym przykładzie używamy klasy ThreadPoolExecutor pochodzącej z modułu concurrent.futures. Moduł ten udostępnia użytkownikom języka wysokopoziomowe interejsy umożliwiające prostsze wykonywanie asynchronicznych procesów. Pod spodem używane są mechanizmy znane z modułów threading oraz processing. Stosowana w tym przykładzie klasa pozwala na korzystanie ze zbioru wątków, by wykonywać z ich pomocą zadania asynchroniczne.
+W tym przykładzie używamy klasy ThreadPoolExecutor pochodzącej z modułu concurrent.futures\footnote{\url{https://docs.python.org/3/library/concurrent.futures.html}}. Moduł ten udostępnia użytkownikom języka wysokopoziomowe interejsy umożliwiające prostsze wykonywanie asynchronicznych procesów. Pod spodem używane są mechanizmy znane z modułów threading oraz processing. Stosowana w tym przykładzie klasa pozwala na korzystanie ze zbioru wątków, by wykonywać z ich pomocą zadania asynchroniczne.
 
 W przykładach współbieżnych wykorzystujących threading oraz multiprocessing (pomijając asyncio) będziemy wykorzystywali funkcję pomocniczą o nazwie get\_response\_body zdefiniowaną następująco:
 \begin{lstlisting}
@@ -120,6 +120,261 @@ def fetch_sites_threading():
     return res
 \end{lstlisting}
 
-Jedyna jawna różnica względem endpointa korzystającego z threadingu to użyta klasa executora - zmiana z ThreadPoolExecutora na ProcessPoolExecutora sprawia, że zamiast używania wątków kod będzie korzystał z zupełnie oddzielnych procesów. Mówiąc inaczej, niejawnie zamiast modułu threading będzie używany moduł multiprocessing. Tutaj opcjonalny argument przy inicjalizacji klasy to liczba reprezentująca maksymalną liczbę robotników wykonujących pracę równolegle. W tym przypadku domyślna wartość jeśli programista nie poda swojej to dokładnie ilość procesorów lub rdzeni procesora.
+Jedyna jawna różnica względem endpointa korzystającego z threadingu to użyta klasa executora - zmiana z ThreadPoolExecutor na ProcessPoolExecutor sprawia, że zamiast używania wątków kod będzie korzystał z zupełnie oddzielnych procesów. Mówiąc inaczej, niejawnie zamiast modułu threading będzie używany moduł multiprocessing. Tutaj opcjonalny argument przy inicjalizacji klasy to liczba reprezentująca maksymalną liczbę robotników wykonujących pracę równolegle. W tym przypadku domyślna wartość jeśli programista nie poda swojej to dokładnie ilość procesorów lub rdzeni procesora.
 
 Ponownie wynik zapytania z analogicznymi wartościami zmiennych powinien być identyczny, zaś czas wykonania podobny do przypadku z użyciem wątków, prawdopodobnie z naddatkiem związanym z koniecznością włączenia oddzielnego procesu dla każdego wykonania.
+
+\subsubsection{asyncio}
+W przypadku posługiwania się modułem asyncio i słowami kluczowymi async oraz await będziemy musieli dokonać więcej zmian w kodzie niż w przypadku pozostałych metod. Sam endpoint zdefiniujemy następująco:
+\begin{lstlisting}
+from fastapi import APIRouter
+from concurrent.futures import ThreadPoolExecutor,
+
+router = APIRouter()
+
+tasks = []
+    for i in range(NUMBER_OF_REQUEST):
+        tasks.append(SingletonSession.fetch_url(URL_TO_BE_REQUESTED))
+    return await asyncio.gather(*tasks)
+\end{lstlisting}
+Jak widać różnica jest znacząca, a główne fragmenty wykonań tego kodu leżą w klasie pomocniczej SingletonSession, która musiała zostać zaimplementowana ze względu na problem, który może się pojawić, gdy liczba wykonywanych współbieżnie zapytań przewyższy możliwości naszego systemu operacyjnego. Kod klasy SingletonSession rezyduje w oddzielnym pliku ,,session\_util'', który znajduje się w korzeniu naszego projektu, zaś jego kod to:
+\begin{lstlisting}
+from typing import Optional
+
+import aiohttp
+
+
+class SingletonSession:
+    session: Optional[aiohttp.ClientSession] = None
+
+    @classmethod
+    def get_session(cls) -> aiohttp.ClientSession:
+        if not cls.session:
+            cls.session = aiohttp.ClientSession()
+        return cls.session
+
+    @classmethod
+    async def fetch_url(cls, url: str) -> bytes:
+        session = cls.get_session()
+
+        async with session.get(url) as res:
+            return await res.read()
+
+    @classmethod
+    async def destroy_session(cls) -> None:
+        if cls.session:
+            await cls.session.close()
+            cls.session = None
+
+\end{lstlisting}
+
+Przy tworzeniu struktury tej klasy użyty został wzorzec projektowy singleton\footnote{Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides (1994). Design Patterns: Elements of Reusable Object-Oriented Software}. Jest on tutaj niezbędny, aby wszystkie endpointy zrównoleglające zapytania korzystały z tej samej instancji klasy aiohttp.ClientSession, gdyż w przeciwnym wypadku, gdyby każdy endpoint tworzył własną sesję mogłoby to doprowadzić do błędu systemowego ,,Too many open files''. Krótkoterminowym rozwiązaniem problemu w systemie linux może być zmiana systemowego parametru określającego liczbę file descriptorów, jednak musi ona być skończoną liczbą, więc p©edzej czy później nasz program napotkałby granicę. Dzięki jednej instancji sesji dla całego naszego serwera możemy uniknąć tego problemu. Musimy jedynie pamiętać, że w obecnej postaci klasa musi zostać zainicjalizowana w kontekście sekwencyjnym, gdyż może wystąpić race condition powodujące stworznenie więcej niż jednej instancji sesji. Najprawdopodobniej garbage collector Pythona poradziłby sobie i usunął niepotrzebny obiekt, jednak mimo wszystko należy unikać tego typu sytuacji.
+
+Metoda ,,destroy\_session'' to mechanizm, którego nasza aplikacja używać będzie do ,,sprzątnięcia'' istniejących instancji sesji.
+
+Kluczową metodą naszej klasy sesji jest ,,fetch\_url'' - metoda odpowiadająca za ,,zaplanowanie'' wykonania zapytania na podany URL.
+
+Z wykorzystaniem tak stworzonej klasy SingletonSession korzystanie z asyncio w samym endpointcie nie jest już tak skomplikowane.
+
+\subsection{Obliczenia}
+Drugim aspektem, niejako przeciwstawnym do operacji wysyłania żądań będzie w mojej pracy wykonywanie obliczeń matematycznych. Są to tak zwane operacje związane z procesorem\footnote{ang. ,,cpu-bound''}. Algorytm, który będziemy tutaj stosowali jest bardzo prosty i wykonuje on działanie dodawania liczb od 0 do X. Następnie nasz program będzie wykonywał to działanie Y razy i finalnie sumował wyniki wszystkich Y wykonań. Ostateczny wzór na wynik naszych obliczeń będzie wyglądał następująco:
+\[ (\sum_{n=0}^{X} n) * Y \].
+
+\subsubsection{Sekwencyjnie}
+Ponownie, by przedstawić punkt wyjścia do którego będziemy porównywać rozwiązania zrównoleglające zaczniemy od implementacji rozwiązania sekwencyjnego:
+\begin{lstlisting}
+@router.get('/count-sync')
+async def count_sync() -> Dict[str, int]:
+    res = [cpu_heavy(i) for i in range(COUNTS_RANGE)]
+    return sum(res)
+\end{lstlisting}
+, gdzie funkcja ,,cpu\_ready'' odpowiada właśnie za pierwsze sumowanie i jest zdefiniowana w sposób następujący:
+\begin{lstlisting}
+def cpu_heavy(_: int) -> int:
+    count = 0
+    for i in range(50000):
+        count += i
+    return count
+\end{lstlisting}
+Zmienna COUNTS\_RANGE jest oczywiście liczbą wykonań naszej funkcji  ,,cpu\_heavy''. Tej definicji funkcji będziemy używali również w przykładach z użyciem threadingu oraz multiprocessingu.
+
+\subsubsection{threading}
+Pierwszym sposobem jaki wykorzystamy przy próbie zrównoleglenia obliczeń jest moduł threading. implementacja wygląda bardzo podobnie jak w przypadku operacji wysyłania żądań:
+\begin{lstlisting}
+@router.get('/count-threading')
+async def count_threading() -> Dict[str, int]:
+    with ThreadPoolExecutor() as ex:
+        res = ex.map(cpu_heavy, range(COUNTS_RANGE))
+    return sum(res)
+\end{lstlisting}
+Zmianie uległy jedynie parametry przekazywane do metody ,,map'' executora. Warto tutaj podkreślić, że nie spodziewamy się tutaj poprawy wydajnościowej względem podejścia sekwencyjnego, ale nie uprzedzając faktów sprawdzimy to założenie w kolejnym rozdziale.
+
+\subsubsection{multiprocessing}
+W wypadku użycia multiprocessingu kod będzie wyglądał dokładnie tak samo jak w przypadku threadingu z wyjątkiem użycia klasy PoolExecutora korzystającego z procesów zamiast wątków. Założenie w tym przypadku jest takie, że jeśłi tylko nasz serwer dysponuje więcej niż jednym procesorem lub kilkoma rdzeniami prędkość obliczeń powinna ulec zwiększeniu.
+
+\subsubsection{asyncio}
+W przypadku asyncio kod będzie wyglądał nieco inaczej. Choć w większości przypadków zasostosowanie asyncio wymaga większej ilości kodu, akurat w tym przypadku można zaryzykowac stwierdzenie, że jest odwrotnie.
+\begin{lstlisting}
+@router.get('/count-async')
+async def count_async() -> Dict[str, int]:
+    return sum(await asyncio.gather(*[acpu_heavy(i) for i in range(COUNTS_RANGE)]))
+\end{lstlisting}
+Zasadniczą część naszego endpointa udało się zmieścić w jednej linii. Co warto podkreślić użyta funkcja ,,acpu\_heavy'' wygląda dokładnie tak samo jak ,,cpu\_heavy'' z poprzednich przykładów, z tą małą różnicą, że zdefiniowana jest przy pomocy ,,async def''.
+
+Założenie w przypadku tego rozwiązania jest takie, że czas wykonania zapytania będzie podobny lub większy niz w przypadku rozwiązania sekwencyjnego.
+
+
+\section{Django}
+Framework Django\footnote{\url{https://www.djangoproject.com/}} to jeden z najpopularniejszych frameworków webowych w świecie Pythona. Jego pierwotnymi autorami są Adrian Holovaty i Simon Willison, którzy prace nad nim rozpoczęli pod koniec roku 2003.\footnote{https://www.quora.com/What-is-the-history-of-the-Django-web-framework-Why-has-it-been-described-as-developed-in-a-newsroom, dostęp 16.06.2021} Framework ten działa aktualnie we wzorcu architektonicznym zwanym ,,model-template-views''. Jest to nieco zmodyfikowana wersja bardziej klasycznego wzorca o nazwie ,,model-view-controller''. Co ciekawe odpowiednikami model, view oraz controller są w Django odpowiednio model, template oraz view.\footnote{https://docs.djangoproject.com/en/dev/faq/general/\#django-appears-to-be-a-mvc-framework-but-you-call-the-controller-the-view-and-the-view-the-template-how-come-you-don-t-use-the-standard-names, dostęp: 16.06.2021} Jako, że frmework powstawał w czasie, gdy podobne technologie nie były jeszcze dość mocno rozpowszechnione, inspiracjami jego twórców był głównie język php, w którym obaj pisali przez zainteresowaniem się Pythonem.
+
+\subsection{Przykład użycia technologii}
+Korzystanie z frameworka rozpoczynamy od jego instalacji:
+\begin{lstlisting}
+pip install django
+\end{lstlisting}
+Po wykonaniu tego polecenia możemy skorzystać z wbudowanych narzędzi django, które same tworzą szkilete naszej aplikacji. By wywołać takie wbudowane narzędzie do terminala wpisujemy:
+\begin{lstlisting}
+django-admin startproject django_examples
+\end{lstlisting}
+a następnie wchodzimy do nowo utworzonego katalogu django\_examples i wykonujemy komendę:
+\begin{lstlisting}
+django-admin startapp examples
+\end{lstlisting}
+
+W lokalizacji, w której wpisaliśmy tę komendę powinien utworzyć się schemat katalogów przypominający następujący:
+\dirtree{%
+.1 projectname.
+.2 projectname.
+.3 settings.py.
+.3 urls.py.
+.3 asgi.py.
+.3 wsgi.py.
+.2 examples.
+.3 models.py.
+.3 views.py.
+}
+Aby uruchomić wbudowany w Django server deweloperski wysatrczy, że posłużymy się komendą:
+\begin{lstlisting}
+python manage.py runserver
+\end{lstlisting}
+Żebyśmy mogli jednak przeprowadzić pomiary z warunkach choć trochę zbliżónych do realnych będziemy chcieli użyć konfiguracji zbliżonej do produkcyjnej. W tym celu instalujemy gunicorna\footnote{\url{https://gunicorn.org/}}. i aby włączyć naszą aplikację wykonujemy 
+\begin{lstlisting}
+gunicorn django_examples.asgi:application -k uvicorn.workers.UvicornWorker
+\end{lstlisting}
+
+Aby stworzyć przykładowy endpoint umieszczamy w pliku views.py znajdującym się w katalogu examples następujący kod:
+\begin{lstlisting}
+from django.http import JsonResponse
+
+def welcome_page(_):
+    return JsonResponse({'welcome': 'Welcome to django example project'})
+\end{lstlisting}
+Tak zdefiniowany widok nazywamy w django widokiem funkcyjnym. W trakcie używania frameworka mamy do dyspozycji również wbudowane widoki klasowe\footnote{\url{https://docs.djangoproject.com/en/dev/topics/class-based-views/}}, jednak dla anaszego przypadku użycia będziemy posługiwać sie możliwie najprostszą implementacją, która ułatwi nam porównanie z FastAPI.
+
+W przeciwieństwie do FastAPI, zamiast dekoratora, aby określić URL tego endpointa musimy zdefiniować wzorce adresów w oddzielnym pliku. W tym celu tworzymy w katalogu examples plik o nazwie urls.py i wewnątrz umieszczamy:
+\begin{lstlisting}
+from django.urls import path
+
+from examples.views import welcome_page
+
+urlpatterns = [
+    path('', welcome_page),
+]
+\end{lstlisting}
+a w następnej kolejności w pliku o tej samej nazwie istniejącym w katalogu django\_examples modyfikujemy zdefiniowaną tam listę o nazwie urlpatterns w następujący sposób:
+\begin{lstlisting}
+from django.contrib import admin
+from django.urls import path, include
+
+from examples.urls import urlpatterns as examples_urls
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include(examples_urls))
+]
+
+\end{lstlisting}
+
+W tej konfiguracji po włączeniu aplikacji adres http://127.0.0.1:8000/ powinien zwrócić napis ,,{'welcome': 'Welcome to django example project'}''.
+
+\subsection{Żądania do innych endpointów}
+\subsubsection{Sekwencyjnie}
+Najpierw dla porównania zaobserwujmy sposób implementacji tego zastosowania w wariancie sekwencyjnym. Wyglądał on będzie identycznie jak w przypadku FastAPI, czyli jako kod funkcji widoku podajemy:
+\begin{lstlisting}
+import requests
+
+def fetch_sites_sync(_):
+    responses = []
+    for i in range(NUMBER_OF_REQUESTS):
+        responses.append(get_response_body(URL_TO_BE_REQUESTED))
+    return HttpResponse(responses)
+\end{lstlisting}
+Po zaimportowaniu stworzonej funkcji w pliku urls.py i dodaniu poniższej linii do listy urlpatterns:
+\begin{lstlisting}
+path('fetch-sites-sync', fetch_sites_sync)
+\end{lstlisting}
+możemy odpytać endpoint http://127.0.0.1/fetch-sites-sync/, co przy założeniu, że parametry NUMBER\_OF\_REQUESTS oraz URL\_TO\_BE\_REQUESTED są takie same jak w przykładach z części o FastAPI powinno zwrócić dokładnie taki sam wynik jak w części o FastAPI.
+
+\subsubsection{threading i multiprocessing}
+Tutaj właściwie powtórzony jest kod z części o FastAPI, z częścią o dodawaniu URLi do listy urlpatterns. Różnicą jest oczywiście linia z słowem kluczowym return, w której to linii musimy zwrócić instancję klasy dziedziczącej po klasie HttpResponse, pochodzącej z Django. W naszym wypadku będzie to właśnie instancja klasy HttpResponse inicjalizowana z parametrem ,,res'' będącym wynikiem konkatenacji odpowiedzi na zapytania naszego serwera.
+
+Dla przejrzystości zerknijmy jedynie na przykład z użyciem threadingu:
+\begin{lstlisting}
+from concurrent.futures import ThreadPoolExecutor
+import requests
+
+def fetch_sites_threading(_):
+    with ThreadPoolExecutor() as executor:
+        res = executor.map(get_response_body, (URL_TO_BE_REQUESTED for _ in range(NUMBER_OF_REQUESTS)))
+    return JsonResponse(res)
+\end{lstlisting}
+Zmianie w wypadku multiprocessingu ulegnie oczywiście jedynie klasa PoolExecutor.
+
+\subsubsection{asyncio}
+Sytuacja z asyncio jest w Django na ten moment dość nowa\footnote{czerwiec 2021}. Obsługa asynchronicznego Pythona została wprowadzona dopiero w wersji 3.0, czyli w grudniu 2019 roku\footnote{\url{https://docs.djangoproject.com/en/dev/releases/3.0/}}, zaś obsługa widoków funkcyjnych definiowanych przy użyciu słowa kluczowego async dopiero w wersji 3.1 opublikowanej w sierpniu 2020\footnote{\url{https://docs.djangoproject.com/en/dev/releases/3.1/}}.
+
+W naszym przykładowym projekcie posługujemy się Django w wersji 3.2.4, więc z pewnością możemy posłużyć się widokiem funkcyjnym zdefiniowanym przy pomocy ,,async def'':
+\begin{lstlisting}
+import asyncio
+
+async def fetch_sites_async(_):
+    tasks = []
+    for i in range(NUMBER_OF_REQUESTS):
+        tasks.append(get_site(URL_TO_BE_REQUESTED))
+    res = await asyncio.gather(*tasks)
+    return HttpResponse(res)
+\end{lstlisting}
+Po pierwsze abyśmy mogli skorzystać z tej technologii musimy zmienić sposób startowania naszej aplikacji. Dla lokalnego developmentu wystarczy komenda:
+\begin{lstlisting}
+uvicorn django_examples.asgi:application --reload --port 8000
+\end{lstlisting}
+jeśli zaś chcemy mieć gotową konfigurację produkcyjną:
+\begin{lstlisting}
+gunicorn django_examples.asgi:application -k uvicorn.workers.UvicornWorker
+\end{lstlisting}
+
+Choć na pierwszy rzut oka widok ten wygląda bardzo podobnie do analogicznego w FastAPI kluczową różnicą jest brak klasy SessionSingleton i użycie funkcji zdefiniowanej jako ,,get\_site'', a która to funkcja wygląda następująco:
+\begin{lstlisting}
+async def get_site(url: str):
+    async with session.AIOHTTP_CLIENT_SESSION.get(url) as response:
+        return await response.read()
+\end{lstlisting}
+i ponownie struktura tej funkcji jest bardzo zbliżona do struktury metody ,,fetch\_url'' klasy SessionSingleton używanej przez nas w wypadku FastAPI. Kluczową różnicą jest sposób tworzenia instancji tej sesji. By stworzyć w Django sesję, która zainicjalizuje się tylko raz i będziemy jej mogli używać z dowolnego miejsca tworzymy w katalogu examples plik session.py i w nim umieszczamy następujący kod:
+\begin{lstlisting}
+AIOHTTP_CLIENT_SESSION: Optional[aiohttp.ClientSession] = None
+\end{lstlisting}
+Teraz w ustawieniach globalnych naszej aplikacji czyli pliku settings.py dodajemy:
+\begin{lstlisting}
+import aiohttp
+from examples import session
+
+session.AIOHTTP_CLIENT_SESSION = aiohttp.ClientSession()
+\end{lstlisting}
+Plik settings.py jest wykonywany zawsze na początku uruchomienia naszej aplikacji, więc instancja będzie tworzona właśnie wtedy. Następnie z dowolnego miejsca aplikacji możemy wykonać
+\begin{lstlisting}
+from examples import session
+\end{lstlisting}
+co da nam do niej dostęp. W zasadzie to rozwiązanie wciąż korzysta z wzorca singleton, lecz robi to mniej transparentnie.
+
+\subsection{Obliczenia}
+W przypadku Django rozwiązania, które zostały zastosowane są w zasadzie identyczne jak w przypadku FastAPI, zaś różnice leżą głównie w mechanizmach rządzących samymi frameworkami. Powtórzmy więc, że przede wszystkim w Django mamy brak dekoratora defniującego URL - zamiast tego defniujemy URLe w pliku urls.py. Ponadto widok musi zwracać instancje klasy dziedziczącej po HttpResponse.

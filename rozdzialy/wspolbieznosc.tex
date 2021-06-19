@@ -1,0 +1,27 @@
+\chapter{Współbieżność i równoległość}
+
+Przewrotnie piewrszy rozdział mojej pracy o współbieżności zaczniemy od próby krótkiej definicji klasycznego sekwencyjnego programu komputerowego. Mianowicie program taki składa się z deklaracji danych i z zapisanych w jakmiś języku programowania instrukcji, które da się wykonać.\footnote{Mordechai Ben-Ari (1996). Podstawy programowania współbieżnego i rozproszonego, s.16} Instrukcje te są wykonywane przez komputer sekwencyjnie - jedna po drugiej, aż program dotrze do swojego końca.
+
+W kontrze do programu sekwencyjnego stoją programy współbieżne. Są to programy, które abstrakcyjnie będą wykonywać wiele wspomnianych programów sekwencyjnych w tym samym czasie. Kwestię wspomnianej abstrakcyjności wyjaśnię dokładnie za chwilę, gdy poczynimy rozróżnienie na programy współbieżne oraz zrównoleglone\footnote{ang. odpowiednio concurrent oraz parallel}.
+
+W dużym uproszczeniu możemy wyobrazić sobie dwa scenariusze, w których użycie współbieżności lub równoległości potencjalnie mogłoby przynieść nam jakies korzyści.
+
+Pierwszym ze scenariuszy niech będzie kolejka w sklepie motoryzacyjnym. Stojąc w niej czekamy na obsłużenie nas przez asystenta sprzedaży. Następnie gdy nadchodzi nasza kolej składamy zamówienie, asystent przekierowuje nas do kasy abyśmy mogli zapłacić, a w tym samym czasie obsługa sklepu szuka dla nas zamówionego produktu. Po uiszczeniu opłaty oczekujemy na nasz produkt i pod jego znalezeniu i odbiorze możemy opuścić sklep.
+
+Drugim scenariuszem jest sytuacja, gdy zbieramy się rano do pracy. Rozpoczynamy od wzięcia prysznica, następnie sporządzenia i zjedzenia śniadania, przygotowania ubrań i założenia ich, na końcu umycia zębów i wyjścia z mieszkania. Jest to lista czynności pomiędzy którymi nie zauważymy żadnych czasów oczekiwania (może z jakimś małym wyjątkiem oczekiwania na zagotowanie wody na kawę).
+
+\section{Współbieżność}
+Współbieżność jest terminem szerszym i zawierającym w sobie równoległość. 
+
+W pierwszym scenariuszu jesteśmy programem, który ma dość dużo momentów ,,oczekiwania'' - stojąc w kolejce, czekając na produkt. W tym czasie oczekiwania możemy wykonywać jakąś inną czynność, na przykład pisać na wziętym z domu laptopie program, który musimy ukończyć do pracy. Po oczekiwaniu mamy swój opłacony paragon, który pokazujemy przy odbiorze produktu, więc nie martwiąc się o to że ktoś inny ,,ukradnie'' nasze zamówienie kończymy dotychczas wykonywaną pracę i dopiero wtedy odbieramy.
+
+W scenariuszu drugim brak czasów oczekiwania sprawia, że w pojedynkę nie jesteśmy w stanie wykonać więcej czynności niż mamy zaplanowane. Przygotowując śniadanie nie możemy równocześnie w tym samym czasie przygotowywać ubrań, w które się następnie ubierzemy, a kiedy się w nie ubieramy brać jednocześnie prysznic.
+
+Tak w uproszczeniu działają programy współbieżne. Jest to oczywiście pewna abstrakcja, która pozwala nam wyobrazić sobie swego rodzaju przełożenie idei współbieżności naświat rzeczywisty, gdyż faktyczna prędkość działań urządzeń elektronicznych jest bardzo trudna do ogarnięcia intuicyjnie.\footnote{Mordechai Ben-Ari (1996). Podstawy programowania współbieżnego i rozproszonego, s.17}
+
+\section{Równoległość}
+Równoległość jest podzbiorem współbieżności, którego charakterystyczną cechą jest brak pozorności współbieżności. Wszystkie procesy zaplanowane do wykonania w ramach programu, które mają się wykonać współbieżnie będą \emph{faktycznie} wykonywały się dokładnie w tym samym czasie. Warunkiem zaistnienia takiego stanu rzeczy jest posiadanie do dyspozycji więcej niż jednego procesora lub kilku jego rdzeni.
+
+W przypadku naszego pierwszego scenariusza będzie to oznaczało, że asystentów sprzedaży jest kilku, więc kolejka i czas oczekiwania w niej jest skrócony. Asystenci odbierają nasze zamównienie. Asystent sprzedaży jest jednocześnie kasjerem, więc inkasuje od nas opłatę za zamówiony produkt, a następnie idzie go szukać. W tym czasie nasza uwaga skupiona jest w pełnie na staniu przy kasie i czoekiwaniu na produkt, nie jesteśmy w stanie wykorzystać tego czasu na wykonanie innej pracy.po znalezieniu produktu możemy opuścić sklep.
+
+W scenariuszu drugim sytuacja będzie wyglądała inaczej. Jesteśmy my oraz naszych trzech pomocników, którzy zajmują się naszym domem. W czasie gdy my bierzemy prysznic, jeden z pomocników przygotowuje śniadanie, drugi prasuje koszulę i spodnie, a trzeci pastuje nasze buty. Zjadając śniadanie, widzimy, że jeden z pomocników w tym czasie zabrał się już za ogólne porządki, drugi wynosi śmieci, a trzeci przygotowuje produkty na obiad, który będzie gotowy, gdy wrócimy z pracy. Tacy pomocnicy to właśnie dodatkowe procesory naszej maszyny (lub rdzenie).
