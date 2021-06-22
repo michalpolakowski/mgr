@@ -8,7 +8,7 @@ def show_duration_chart(results: list, title: str) -> None:
     plt.grid(axis='x')
     plt.ylabel("Tasks")
     plt.xlabel("Seconds")
-    plt.xlim(0, 30)
+    plt.xlim(0, 35)
     ytks = range(len(results))
     plt.yticks(ytks, ['job {}'.format(exp) for exp in ytks])
     plt.title(title)

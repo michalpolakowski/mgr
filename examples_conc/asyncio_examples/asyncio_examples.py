@@ -1,27 +1,24 @@
 import asyncio
-import time
+from typing import Callable, Awaitable, Union, List, Tuple
 
 import aiohttp
 
 
-async def asyncio_downloading(session: aiohttp.ClientSession, url: str):
-    async with session.get(url) as response:
-        return await response.read()
-
-
-async def asyncio_example(length=10):
-    start = time.time()
-    urls = [
-                "https://www.python.org",
-                "https://www.google.com/",
-            ] * 80
+async def asyncio_main(args,
+                       function_to_be_triggered: Union[
+                           Callable[[int, aiohttp.ClientSession], Awaitable[Tuple[float, float]]],
+                           Callable[[int], Awaitable[Tuple[float, float]]]
+                       ],
+                       length=10):
     tasks = []
-    async with aiohttp.ClientSession() as session:
-        for i in range(length):
-            print(f'id: {i}')
-            for url in urls:
-                tasks.append(asyncio.create_task(asyncio_downloading(session, url)))
-            await asyncio.gather(*tasks)
-    stop = time.time()
-    return start, stop
+    if args.io:
+        async with aiohttp.ClientSession() as session:
+            for i in range(length):
+                tasks.append(function_to_be_triggered(i, session))
 
+            return await asyncio.gather(*tasks)
+    else:
+        for i in range(length):
+            tasks.append(function_to_be_triggered(i))
+
+        return await asyncio.gather(*tasks)

@@ -2,7 +2,7 @@ import asyncio
 
 import matplotlib.pyplot as plt
 
-from asyncio_examples.asyncio_examples import asyncio_example
+from asyncio_examples.asyncio_examples import asyncio_main
 from processing_examples.pool_processing import pool_processing
 from threading_examples.pool_threading import pool_threading
 from threading_examples.simple_threading import simple_threading
@@ -19,36 +19,29 @@ WAYS_OF_CONCURRENCY_MAPPING = {
     'pool': {
         'threading': pool_threading,
         'processing': pool_processing
-    },
+    }
 }
+
+DEFAULT_LENGTH = 8
 
 
 def main() -> None:
     args = parser_config()
+    length = args.length if hasattr(args, 'length') else DEFAULT_LENGTH
+    function_to_be_triggered = function_selection(args)
 
     if args.level == 'asyncio':
-        if args.visuals:
-            show_duration_chart(asyncio.run(asyncio_example()), args.way)
-        else:
-            asyncio.run(asyncio_example())
+        results = asyncio.run(asyncio_main(args, function_to_be_triggered, length=length))
     else:
         ways = WAYS_OF_CONCURRENCY_MAPPING[args.level]
-        function_to_be_triggered = function_selection(args)
+        results = ways[args.way](function_to_be_triggered, length=length)
 
-        if args.visuals:
-            if args.real_time:
-                show_real_time_chart(
-                    ways[args.way](function_to_be_triggered, length=args.length if hasattr(args, 'length') else 10),
-                    args.way
-                )
-            else:
-                show_duration_chart(
-                    ways[args.way](function_to_be_triggered, length=args.length if hasattr(args, 'length') else 10),
-                    args.way
-                )
-            plt.show()
+    if args.visuals:
+        if args.real_time:
+            show_real_time_chart(results, args.way)
         else:
-            ways[args.way](function_to_be_triggered, length=args.length if hasattr(args, 'length') else 10)
+            show_duration_chart(results, args.way)
+        plt.show()
 
 
 if __name__ == '__main__':

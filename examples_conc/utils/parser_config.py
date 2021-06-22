@@ -7,7 +7,7 @@ def parser_config() -> argparse.Namespace:
                         help='Level ("simple", "pool", "asyncio")')
     parser.add_argument('way', type=str, choices=['threading', 'processing', 'asyncio'],
                         help='Concurrency way ("threading", "processing", "asyncio")')
-    parser.add_argument('--length', default=8, nargs='?', type=int, help='Number of workers to be started')
+    parser.add_argument('--length', default=10, nargs='?', type=int, help='Number of workers to be started')
     parser.add_argument('-io', action='store_true',
                         help='IO operations - without it, program is using cpu heavy operations')
     parser.add_argument('-visuals', action='store_true',
@@ -15,6 +15,6 @@ def parser_config() -> argparse.Namespace:
     parser.add_argument('-real_time', action='store_true')
     args = parser.parse_args()
 
-    if args.level != 'pool' and args.visuals:
-        parser.error('You cannot create visuals without pool way.')
+    if args.level != 'pool' and args.visuals and not args.way == 'asyncio':
+        parser.error('You cannot create visuals without pool way or for asyncio.')
     return parser.parse_args()
