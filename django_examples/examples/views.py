@@ -2,13 +2,13 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 import requests
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 
 from examples import session
 
 
 URL_TO_BE_REQUESTED = 'http://localhost:8000/'
-NUMBER_OF_REQUESTS = 100
+NUMBER_OF_REQUESTS = 1000
 
 
 def welcome_page(_):
@@ -19,19 +19,19 @@ def fetch_sites_sync(_):
     responses = []
     for i in range(NUMBER_OF_REQUESTS):
         responses.append(get_response_body(URL_TO_BE_REQUESTED))
-    return HttpResponse(responses)
+    return JsonResponse(responses, safe=False)
 
 
 def fetch_sites_threading(_):
     with ThreadPoolExecutor() as executor:
         res = executor.map(get_response_body, (URL_TO_BE_REQUESTED for _ in range(NUMBER_OF_REQUESTS)))
-    return HttpResponse(res)
+    return JsonResponse([welcome_text for welcome_text in res], safe=False)
 
 
 def fetch_sites_processing(_):
     with ProcessPoolExecutor() as executor:
         res = executor.map(get_response_body, (URL_TO_BE_REQUESTED for _ in range(NUMBER_OF_REQUESTS)))
-    return HttpResponse(res)
+    return JsonResponse([welcome_text for welcome_text in res], safe=False)
 
 
 async def fetch_sites_async(_):
@@ -39,14 +39,13 @@ async def fetch_sites_async(_):
     for i in range(NUMBER_OF_REQUESTS):
         tasks.append(get_site(URL_TO_BE_REQUESTED))
     res = await asyncio.gather(*tasks)
-    return HttpResponse(res)
+    return JsonResponse([welcome_text for welcome_text in res], safe=False)
 
 
 async def get_site(url: str):
-    print(session.AIOHTTP_CLIENT_SESSION)
     async with session.AIOHTTP_CLIENT_SESSION.get(url) as response:
-        return await response.read()
+        return await response.json()
 
 
 def get_response_body(url):
-    return requests.get(url).content
+    return requests.get(url).json()

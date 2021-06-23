@@ -18,7 +18,7 @@ class SingletonSession:
         session = cls.get_session()
 
         async with session.get(url) as res:
-            return await res.read()
+            return await res.json()
 
     @classmethod
     async def destroy_session(cls) -> None:
@@ -36,18 +36,18 @@ async def destroy_aiohttp_session():
 
 
 def get_response_body(url):
-    return requests.get(url).content
+    return requests.get(url).json()
 
 
 def cpu_heavy(_: int) -> int:
     count = 0
-    for i in range(50000):
+    for i in range(25000):
         count += i
     return count
 
 
 async def acpu_heavy(_: int) -> int:
     count = 0
-    for i in range(50000):
+    for i in range(25000):
         count += i
     return count

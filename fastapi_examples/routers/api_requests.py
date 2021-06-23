@@ -14,7 +14,7 @@ router = APIRouter()
 def fetch_sites_sync():
     responses = []
     for i in range(NUMBER_OF_REQUESTS):
-        responses.append(requests.get(URL_TO_BE_REQUESTED).content)
+        responses.append(requests.get(URL_TO_BE_REQUESTED).json())
     return responses
 
 

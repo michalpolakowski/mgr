@@ -11,9 +11,9 @@ URLS_TO_BE_FETCHED = [
 ]
 
 
-def download_site(url: str, session: requests.Session) -> None:
-    with session.get(url):
-        pass
+def download_site(url: str, session: requests.Session) -> str:
+    with session.get(url) as res:
+        return res.text
 
 
 def download_all_sites(identification: int) -> Tuple[float, float]:
