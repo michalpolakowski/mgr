@@ -28,7 +28,7 @@ gdzie parametr -c to liczba współbieżnych użytkowników, zaś -r to liczba k
 \end{figure}
 Zostało wykonane dokładnie jedno zapytanie na endpoint ,,/fetch-sites-sync''. Czas jaki zajęło wykonanie tego zapytania i otrzymania odpowiedzi to 1.89 sekundy, podobnie jak całego procesu wysyłania zapytań i odbierania odpowiedzi.
 
-Aby zobaczyć jak ta sama operacja wykona się Django w poprzednim poleceniu zmieniamy jedynie port na odpowiadający temu, na którym działa serwis wykonany w Django:
+Aby zobaczyć jak ta sama operacja wykona się w Django w poprzednim poleceniu zmieniamy jedynie port na odpowiadający temu, na którym działa serwis wykonany w Django:
 \begin{figure}[H]
     \includegraphics[height=50mm]{zdjecia/1_req_sync_django}
     \centering
@@ -62,7 +62,7 @@ Teraz zaczniemy od testu endpointów używających modułu threading od razu uż
     \centering
     \caption{Django, threading, 10 użytkowników, 5 zapytań}
 \end{figure}
-Zaobserwować możemy, że przewaga FastAPI, którą widzieliśmy w przykłądzie sekewncyjnym tutaj się ulotniła. Związane jest to z mechanizem FastAPI, który decyduje o tym czy widok zdefiniowany jest jako ,,async def'' czy też zwykły ,,def'' przez co w przypadku threadingu oba frameworki wypadają podobnie. Korzystniej wypadałoby użycie widoku zdefiniowanego jako ,,async def'' w FastAPI, jednak w przypadku korzystania z threadingu wewnątrz tak zdefiniowanych widoków rodziłoby się niebezpieczeństwo związane z wyciekami pamięci i zatrzymaniem niektórych wątków, a co za tym idzie utratą część przesłanych danych. Byłoby to rozwiązanie możliwe do implementacji, jeśłi możemy pozwolić klientowi naszego api na powtórzenie zapytania w wypadku otrzymania błędu. Należałoby wtedy ocenić korzyści czasowe płynące z zastosowania takiego rozwiązania wobec strat związanych z ponawianiem zapytań.
+Zaobserwować możemy, że przewaga FastAPI, którą widzieliśmy w przykładzie sekwencyjnym tutaj się ulotniła. Związane jest to z mechanizem FastAPI, który decyduje o tym czy widok zdefiniowany jest jako ,,async def'' czy też zwykły ,,def'' przez co w przypadku threadingu oba frameworki wypadają podobnie. Korzystniej wypadałoby użycie widoku zdefiniowanego jako ,,async def'' w FastAPI, jednak w przypadku korzystania z threadingu wewnątrz tak zdefiniowanych widoków rodziłoby się niebezpieczeństwo związane z wyciekami pamięci i zatrzymaniem niektórych wątków, a co za tym idzie utratą części przesłanych danych. Byłoby to rozwiązanie możliwe do implementacji, jeśli możemy pozwolić klientowi naszego api na powtórzenie zapytania w wypadku otrzymania błędu. Należałoby wtedy ocenić korzyści czasowe płynące z zastosowania takiego rozwiązania wobec strat związanych z ponawianiem zapytań.
 
 \subsection{multiprocessing}
 \begin{figure}[H]
@@ -77,7 +77,7 @@ Zaobserwować możemy, że przewaga FastAPI, którą widzieliśmy w przykłądzi
     \caption{Django, multiprocessing, 10 użytkowników, 5 zapytań}
 \end{figure}
 
-Tutaj ponownie przewaga uzyskana przez FastAPI przy klasycznym sekwencyjnym podejściu została zniwelowana. Multiprocessing stanowczo w obu frameworkach działa tak samo dobrze, Nawet z lekkim wskazaniem w stronę Django, które przypomnijmy miało być w tym starciu technolgią bardziej rozbudowaną, ale jednak wolniejszą. Warto podkreślić, że tak dobry wynik tego rozwiązania nie byłby możliwy bez zastosowania go na architekturze opartej o kilkurdzeniowy procesor.
+Tutaj ponownie przewaga uzyskana przez FastAPI przy klasycznym sekwencyjnym podejściu została zniwelowana. Multiprocessing stanowczo w obu frameworkach działa tak samo dobrze, nawet z lekkim wskazaniem w stronę Django, które przypomnijmy miało być w tym starciu technologią bardziej rozbudowaną, ale jednak wolniejszą. Warto podkreślić, że tak dobry wynik tego rozwiązania nie byłby możliwy bez zastosowania go na architekturze opartej o kilkurdzeniowy procesor.
 
 \subsection{asyncio}
 \begin{figure}[H]
@@ -95,7 +95,7 @@ Zgodnie z przewidywaniem technologia asyncio w przypadku tego typu operacji bije
 
 \section{Obliczenia}
 \subsection{Sekwencyjnie}
-Ponownie rozpoczniemy od obejrzenia wyniku wysłania pojedynczego zapytania na endpoint wykonujący przewiydywane obliczenia w trybie całkowicie sekwencyjnym.
+Ponownie rozpoczniemy od obejrzenia wyniku wysłania pojedynczego zapytania na endpoint wykonujący przewidywane obliczenia w trybie całkowicie sekwencyjnym.
 \begin{figure}[H]
     \includegraphics[height=50mm]{zdjecia/1_math_sync_fast}
     \centering
@@ -122,7 +122,7 @@ Możemy zaobserwować, że w wypadku obliczeń matematycznych frameworki zachowu
 Tutaj kwestia wygląda nieco ciekawiej niż w wypadku wysyłania zapytań. Całościowy czas wykonania wszystkich zapytań przez wszystkich użytkowników okazał się być lepszy w wypadku FastAPI - 203 sekundy względem 236 sekund w Django. Co ciekawe jednak zarówno najdłuższy jak i najkrótszy cykl zapytanie-odpowiedź w wypadku FastAPI są znacząco dłuższe niż analogiczne wskaźniki w Django, pomimo że oczywiście średni czas takiego cyklu jest krótszy w FastAPI. Świadczy to o mniej stabilnej pracy wynikowej frameworka i sprawia, że pomimo satysfakcjonującej prędkości jest on w wypadku rozwiązań sekwencyjnych mniej niezawodny.
 
 \subsection{threading}
-Zobaczmy jak widoki wykonujące zasobożerne obliczenia będą się zachowywało, gdy do próby ich zrównoleglenia użyjemy threadingu.
+Zobaczmy jak widoki wykonujące zasobożerne obliczenia będą się zachowywały, gdy do próby ich zrównoleglenia użyjemy threadingu.
 \begin{figure}[H]
     \includegraphics[height=50mm]{zdjecia/10_math_thread_fast}
     \centering
@@ -134,7 +134,7 @@ Zobaczmy jak widoki wykonujące zasobożerne obliczenia będą się zachowywało
     \centering
     \caption{Django, threading, 10 użytkowników, 5 zapytań}
 \end{figure}
-W tym przypadku jak widać sytuacja jest dużo bardzoej zbliżona. Czasowo ze wszystkimi zapytaniami lepiej poradziło sobie Django, jednocześnie nieco lepiej wypadając również w kwestii najrótszego oraz nadłuższego zapytania. Choć różnica tutaj nie jest tak duża, to jednak zaskakującym jest, że ponownie znajduje się aspekt, w którym starszy framework radzi sobie lepiej.
+W tym przypadku jak widać sytuacja jest dużo bardziej zbliżona. Czasowo ze wszystkimi zapytaniami lepiej poradziło sobie Django, jednocześnie nieco lepiej wypadając również w kwestii najrótszego oraz nadłuższego zapytania. Choć różnica tutaj nie jest tak duża, to jednak zaskakującym jest, że ponownie znajduje się aspekt, w którym starszy framework radzi sobie lepiej.
 
 \subsection{multiprocessing}
 Warto nadmienić, że według oczekiwań multiprocessing powinien być rozwiązaniem, które w przypadku wykonywania obliczeń matematycznych powinien w środowisku wielordzeniowym poradzić sobie najlepiej. Sprawdźmy czy to przewidywanie jest słuszne.
@@ -149,7 +149,7 @@ Warto nadmienić, że według oczekiwań multiprocessing powinien być rozwiąza
     \centering
     \caption{Django, multiprocessing, 10 użytkowników, 5 zapytań}
 \end{figure}
-Multiprocessing poradził sobie widocznie lepiej niż threading. Wzrost prędkości jest między tymi dwoma rozwiązaniami wyraźny, jednak ciekawą obserwacją jest to, że multiprocessing wypadł słabiej niż rozwiązanie sekwencyjne korzystające z jednego wątku. Wyjaśnienie takiego stanu rzeczy jest dość proste. Stosując rozwiązanie jakim jest serwer gunicorn włączane są w zasadzie cztery procesy - parametr -w wskazuje nam jaka dokładnie liczba workerów powinna pracować cały czas. Oznacza to że w zasadzie już z założenia gunicorna nasza aplikacja jest aplikacją wieloprocesową, a dodanie dodatkowych procesów wewnątrz endpointa powoduje jedynie dodatkowy narzut jaki system musi wykonać by nimi zarządzać. Sytuacja oczywiście byłaby inna, gdybyśmy dysponowali maszyną o bardzo wielu rdzeniach, lecz przy naszym zastosowaniu - warto pomyśleć o innym rozwiązaniu.
+Multiprocessing poradził sobie widocznie lepiej niż threading. Wzrost prędkości jest między tymi dwoma rozwiązaniami wyraźny, jednak ciekawą obserwacją jest to, że multiprocessing wypadł słabiej niż rozwiązanie sekwencyjne korzystające z jednego wątku. Wyjaśnienie takiego stanu rzeczy jest dość proste. Stosując rozwiązanie jakim jest serwer gunicorn włączane są cztery procesy - parametr -w wskazuje nam jaka dokładnie liczba workerów powinna pracować cały czas. Oznacza to że w zasadzie już z założenia gunicorna nasza aplikacja jest aplikacją wieloprocesową, a dodanie dodatkowych procesów wewnątrz endpointa powoduje jedynie dodatkowy narzut jaki system musi wykonać by nimi zarządzać. Sytuacja oczywiście byłaby inna, gdybyśmy dysponowali maszyną o bardzo wielu rdzeniach, lecz przy naszym zastosowaniu - warto pomyśleć o innym rozwiązaniu.
 
 \subsection{asyncio}
 \begin{figure}[H]
@@ -204,4 +204,4 @@ asyncio & 218.45s & 253.89s \\[1ex]
 
 Tutaj jak już wspominałem wyniki są dość zaskakujące. Sporą część pracy, którą w normalnej sytuacji wykonywałyby mechanizmy zrównoleglające - tutaj wykonywana jest przez workery, którymi posługuje się nasza aplikacja.
 
-W tym przypadku również różnica między frameworkami nie jest tak oczywista - pomimo użycia dokładnie tych samych parametrów wyniki czasowe są zróżnicowane. W rozwiązaniu sekwencyjnym lepiej z rozporządzaniem moca obliczeniowa poradziło sobie FastAPI, przy użycia threadingu niewielką przewagę uzyskało Django, zaś odwrotna sytuacja zaistniała w przypadku multiprocessingu. Niekwestionowanym słusznym rozwiązaniem w przypadku użycia asyncio jest framework FastAPI - tutaj sytuacja jest bardzo zbliżona do opcji z części wysyłającej zapytania i nie ma wątpliwości, że przy projektowaniu architektury naszego programu wiemy, że będziemy korzystać z asynchronicznych funkcjonalności Pythona to nasz wybór powinien paść na FastAPI, w przeciwnym wypadku zaś - skłonić się powinniśmy ku Django.
+W tym przypadku również różnica między frameworkami nie jest tak oczywista - pomimo użycia dokładnie tych samych parametrów wyniki czasowe są zróżnicowane. W rozwiązaniu sekwencyjnym lepiej z rozporządzaniem mocą obliczeniową poradziło sobie FastAPI, przy użyciu threadingu niewielką przewagę uzyskało Django, zaś odwrotna sytuacja zaistniała w przypadku multiprocessingu. Niekwestionowanym słusznym rozwiązaniem w przypadku użycia asyncio jest framework FastAPI - tutaj sytuacja jest bardzo zbliżona do opcji z części wysyłającej zapytania i nie ma wątpliwości, że jeśli przy projektowaniu architektury naszego programu wiemy, że będziemy korzystać z asynchronicznych funkcjonalności Pythona to nasz wybór powinien paść na FastAPI, w przeciwnym wypadku zaś - skłonić się powinniśmy ku Django.
