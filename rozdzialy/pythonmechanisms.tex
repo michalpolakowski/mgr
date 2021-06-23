@@ -6,13 +6,13 @@ Narzędzie, które stworzyłem do zaprezentowania możliwości współbieżnych 
 \begin{lstlisting}
 python main.py
 \end{lstlisting}
-, jednak w przedstawionej postaci nie będzie ono działało poprawnie, gdyż wymagane jest podanie co najmniej dwóch argumentów. Dwa obowiązkowe argumenty to po pierwsze czy chcemy korzystać z prostej implementacji czy implementacji wykonanej przy pomocy modułu concurrent.futures. Drugi argument wyznacza czy chcemy korzystać z modułu threading czy multiprocessing. Oddzielnym trybem jest krozystanie asyncio, w którym to przypadku w oba miejsca podajemy słowo asyncio.
+, jednak w przedstawionej postaci nie będzie ono działało poprawnie, gdyż wymagane jest podanie co najmniej dwóch argumentów. Dwa obowiązkowe argumenty to po pierwsze czy chcemy korzystać z prostej implementacji czy implementacji wykonanej przy pomocy modułu concurrent.futures. Drugi argument wyznacza czy chcemy korzystać z modułu threading czy multiprocessing. Oddzielnym trybem jest droga korzystająca z asyncio, w którym to przypadku w oba miejsca podajemy słowo asyncio.
 
 Przydatnym argumentem będzie flaga -io, która gdy dodana będzie zmuszała nasz program do wykonania operacji wejścia-wyjścia - bez tego argumentu program domyślnie będzie wykonywał operacje związane z procesorem.
 
 Dodatkowymi argumentami z których możemy skorzystać jest argument -visuals, który pozwoli nam obejrzeć przebieg działań na wykresach oraz -real-time, który włączy tryb dzięki któremu będziemy mogli dokładniej prześledzić przeplot działań naszego programu. Do wygenerowania wykresów użyta została biblioteka matplotlib\footnote{\url{https://matplotlib.org/}}.
 
-Przykładowo jeśli chcemy zobaczyć jak będzie zachowywał się multiprocessing dla operacji wejścia wyjścia i ile każdy proces zajmie czasu podejamy polecenie:
+Przykładowo jeśli chcemy zobaczyć jak będzie zachowywał się multiprocessing dla operacji wejścia wyjścia i ile każdy proces zajmie czasu używamy polecenia:
 \begin{lstlisting}
 python main.py pool processing -io -visuals
 \end{lstlisting}
@@ -37,13 +37,13 @@ def simple_threading(function_to_be_triggered: Callable, length=10) -> None:
     for thread in threads:
         thread.join()
 \end{lstlisting}
-Jako argumenty funkcji podana jest najpierw funkcja, która ma być wykonywana, a następnie konkretna ilość wykonań podanej funkcji.Do listy wątków najpierw dodajemy instancje klasy Thread, w następnej kolejności po kolei startujemy każdy z wątków, a na koniec dołączamy każdy wątek do wykonania programu, aby program zaczekał na zakończenie wszystkich dołączonych wątków.
+Jako argumenty funkcji podana jest najpierw funkcja, która ma być wykonywana, a następnie konkretna ilość wykonań podanej funkcji. Do listy wątków najpierw dodajemy instancje klasy Thread, w następnej kolejności po kolei startujemy każdy z wątków, a na koniec dołączamy każdy wątek do wykonania programu, aby program zaczekał na zakończenie wszystkich dołączonych wątków.
 
 W wypadku multiprocessingu implementacja rozwiązania prostego wygląda tak samo, zmianie ulega jedynie zaimportowana klasa Thread. Zamiast niej importujemy klasę Process:
 \begin{lstlisting}
 from multiprocessing import Process
 \end{lstlisting}
-i używamy jej w tym samym miejscu co klasę Thread. Sposób zapisuej pozostaje ten sam, lecz zmienai się zasada działania programu, który przy każdym użyciu metody start() na instancji Processu włącza nowy interpreter Pythona i wykonuje w nim zadany kod.
+i używamy jej w tym samym miejscu co klasę Thread. Sposób zapisu pozostaje ten sam, lecz zmienia się zasada działania programu, który przy każdym użyciu metody start() na instancji Processu włącza nowy interpreter Pythona i wykonuje w nim zadany kod, co pozwala ,,obejść'' problem Global Interpreter Locka, bo każdy włączony interpreter będzie miał swój oddzielny GIL.
 
 \subsection{Implementacja za pomocą Executora}
 Implementacja za pomocą Executora jest implementacją mniej skomplikowaną używającą modułu concurrent.futures, który powstał właśnie w celu usprawnienia pracy z modułami threading i multiprocessing poprzez dostarczenie wysokopoziomowego interfejsu dla tych narzędzi.
@@ -66,27 +66,64 @@ from concurrent.futures import ProcessPoolExecutor
 \end{lstlisting}
 
 \section{asyncio}
-Rozwiązanie za pomocą asyncio różni się znacząco wobec poprzednich solucji. 
+Rozwiązanie za pomocą asyncio różni się znacząco wobec poprzednich solucji, przede wszystkim dlatego, że samam technologia działa zupełnie inaczej. Przede wszystkim asyncio nie korzysta ani z wielu wątków, ani procesów - wszystko tutaj dzieje się w obrębie jednego wątku oraz jednego procesu.
 
-\newpage
-\section{Wykresy}
-Tutaj możemy przyjrzeć się kilku wynikom czasowym różnych operacji wyknywanych za pomocą innego mechanizmu współbieżnego.
-\begin{figure}[h]
-    \includegraphics{zdjecia/threading_requests}
+Póki co nie dysponujemy dla asyncio analogicznymi narzędzami jak dla threadingu i multiprocessingu, więc implementacja tej ,,drogi'' została wykonana tylko w jeden sposob, który najbardziej odzwierciedla ideę działania tego modułu. Przede wszystkim do uruchomienia naszej głównej funkcji zdefiniowanej za pomocą ,,async def'' potrzebujemy metody run() z modułu asyncio. Metoda ta jest główną metodą, która przeznaczona jest właśnie do włączenia naszego programu. Zajmuje się przy tym zarządzaniem pętlą wydarzeń, domykaniem asynchronicznych generatorów, a na koniec działania zamyka otwarte pętle wydarzeń i zbiory wątków. Warto podkreślić, że jeśli w naszym programie działa już jakaś pętla wydarzeń to program nie będzie w stanie użyć metody run().
+
+Nasza właściwa funkcja o nazwie asyncio\_main zdefiniowana jest następująco:
+\begin{lstlisting}
+async def asyncio_main(args,
+                       function_to_be_triggered: Union[
+                           Callable[[int, aiohttp.ClientSession], Awaitable[Tuple[float, float]]],
+                           Callable[[int], Awaitable[Tuple[float, float]]]
+                       ],
+                       length=10):
+    tasks = []
+    if args.io:
+        async with aiohttp.ClientSession() as session:
+            for i in range(length):
+                tasks.append(function_to_be_triggered(i, session))
+
+            return await asyncio.gather(*tasks)
+    else:
+        for i in range(length):
+            tasks.append(function_to_be_triggered(i))
+
+        return await asyncio.gather(*tasks)
+\end{lstlisting}
+Ze względu na konieczność użycia globalnego obiektu sesji dla wykonywania zapytań wewnątrz funkcji dokonane jest sprawdzenie, którego typu funkcja będzie wykonywana. Kluczowymi elementami programu jest najpierw stworzenie listy współprogramów\footnote{,,Współprogramami'' określam tutaj funkcje zdefiniowane za pomocą ,,async def''.} ,,tasks'', a następnie przekazanie elementów tej listy jako argumentów metody asyncio.gather(). Metoda ta pozwala nam ,,wrzucić'' podane do niej współprogramy do pętli wydarzeń i gdy już wykonają się wszystkie zwraca nam ona wyniki w postaci listy, w ktorej elementami są wyniki podane w tej samej kolejności, w której zostały podane do metody gather().
+
+\section{Próby}
+Tutaj możemy przyjrzeć się kilku wynikom czasowym różnych operacji wykonywanych za pomocą innego mechanizmu współbieżnego.
+\begin{figure}[H]
+    \includegraphics[height=100mm]{zdjecia/threading_requests}
     \caption{Czasy działania threadingu przy operacji wysyłania zapytań http}
 \end{figure}
 
-\begin{figure}
-    \includegraphics{zdjecia/processing_requests}
+\begin{figure}[H]
+    \includegraphics[height=100mm]{zdjecia/processing_requests}
     \caption{Czasy działania multiprocessingu przy operacji wysyłania zapytań http}
 \end{figure}
 
-\begin{figure}
-    \includegraphics{zdjecia/threading_cpu}
+\begin{figure}[H]
+    \includegraphics[height=100mm]{zdjecia/asyncio_requests}
+    \caption{Czasy działania asyncio przy operacji operacji wysyłania zapytań http}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[height=100mm]{zdjecia/threading_cpu}
     \caption{Czasy działania threadingu przy operacji związanej z procesorem}
 \end{figure}
 
-\begin{figure}
-    \includegraphics{zdjecia/processing_cpu}
-    \caption{Czasy działania multiprocessingu przy operacji zwiżanej z procesorem}
+\begin{figure}[H]
+    \includegraphics[height=100mm]{zdjecia/processing_cpu}
+    \caption{Czasy działania multiprocessingu przy operacji związanej z procesorem}
 \end{figure}
+
+Wyraźnie możemy zauważyć kilka rzeczy. Zaczynając od operacji wysyłania requestów zauwazyć możemy, że dwie pierwsze metody są wynikowo bardzo do siebie zbliżone, z minimalnym wskazaniem na korzyść multiprocessingu, jednak biorąc pod uwagę różne anomalie w prędkościach łączy internetowych, czy ogólnej infrastruktury internetowej są to różnice niemal pomijalne. Natomiast wyraźnie lepsza w tym zastosowaniu okazuje się technologia asyncio. Różnica przy wykonaniu tysiąca sześciuset zapytań okazuje się być bardzo duża - około 20 sekund, które zajeła ta praca multiprocessingowi i threadingowi zajmuje asyncio dużo mniej niż 10 sekund, czyli 50\% krócej.
+
+W przypadku operacji związanej z procesorem (którą w naszym przypadku jest dodawanie) sytuacja wygląda zgoła odmiennie. Stanowczo najkorzystniejszy wynik nasz program osiągnął używając multiprocessingu - stałe 10 sekund. Z pewnością wpływ na to miał fakt, że program był uruchamiany na maszynie dysponującej ośmioma rdzeniami. 
+
+Dużo gorzej poradził sobie threading, którego wyniki rozkładają się w obszarze od 22 do 34 sekund. Tak duża rozbieżność może wynikać z narzutu jaki threading musiał dodać w procesie przełączania wątków.
+
+Mylący w tej sytuacji może być wykres asyncio - choć wygląda jakby poradził sobie najlepiej to niestety wszystkie prace zostały wykonane przez niego synchronicznie, więc całość wykonania to suma wszystkich słupków.
